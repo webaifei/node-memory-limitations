@@ -12,13 +12,22 @@ function allocateMemory(size) {
   }
   return arr;
 }
+function allocateMemoryToBuffer(size) {
+  // Simulate allocation of bytes
+  var buffer = Buffer.alloc(size);
+  for (var i = 0; i < size; i++) {
+    buffer[i] = 0;
+  }
+  return buffer;
+}
 
 const memoryLeakAllocations = [];
+const memoryLeakAllocationsBuffer = [];
 
 const field = 'heapUsed';
 const allocationStep = 10000 * 1024; // 10MB
 
-const TIME_INTERVAL_IN_MSEC = 40;
+const TIME_INTERVAL_IN_MSEC = 400;
 
 const start = Date.now();
 const LOG_FILE = path.join(__dirname, 'memory-usage.csv');
@@ -30,21 +39,31 @@ fs.writeFile(
 
 setInterval(() => {
   const allocation = allocateMemory(allocationStep);
+  const bufferAllocation = allocateMemoryToBuffer(allocationStep);
 
+  memoryLeakAllocationsBuffer.push(bufferAllocation)
   memoryLeakAllocations.push(allocation);
 
   const mu = process.memoryUsage();
-  // # bytes / KB / MB / GB
-  const gbNow = mu[field] / 1024 / 1024 / 1024;
-  const gbRounded = Math.round(gbNow * 100) / 100;
+  const heapUsed = getFormatValue(mu['heapUsed']);
+  const heapTotal = getFormatValue(mu['heapTotal']);
+  const external = getFormatValue(mu['external']);
+  const rss = getFormatValue(mu['rss']);
+  const arrayBuffers = getFormatValue(mu['arrayBuffers']);
 
   const elapsedTimeInSecs = (Date.now() - start) / 1000;
   const timeRounded = Math.round(elapsedTimeInSecs * 100) / 100;
 
   fs.appendFile(
     LOG_FILE,
-    timeRounded + ',' + gbRounded + os.EOL,
+    timeRounded + ',' + heapUsed + os.EOL,
     () => {}); // fire-and-forget
 
-  console.log(`Heap allocated ${gbRounded} GB`);
+  console.log(`memory info: \n heapTotal: ${heapTotal} GB \n heapUsed: ${heapUsed} GB \n external: ${external} GB \n rss: ${rss} GB   \n arrayBuffers: ${arrayBuffers} GB`);
 }, TIME_INTERVAL_IN_MSEC);
+
+function getFormatValue(filed) {
+  const gbNow = filed / 1024 / 1024 / 1024;
+  const gbRounded = Math.round(gbNow * 100) / 100;
+  return gbRounded;
+}
