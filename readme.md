@@ -3,5 +3,7 @@
 To run a test:
 
 ```shell
-node index.js
+npm run start:default
+npm run start:2g
+npm run start:fork
 ```
