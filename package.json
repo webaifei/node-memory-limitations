@@ -1,0 +1,26 @@
+{
+  "name": "memory-limitations",
+  "version": "1.0.0",
+  "description": "Test the limits of NodeJS heap allocations",
+  "main": "index.js",
+  "scripts": {
+    "start:default": "node index.js",
+    "start:2g": "node --max-old-space-size=2048 index.js",
+    "start:fork": "node --max-old-space-size=2048 fork.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "soon"
+  },
+  "keywords": [
+    "Node",
+    "JavaScript",
+    "Memory"
+  ],
+  "author": "Camilo Reyes",
+  "license": "ISC",
+  "dependencies": {
+    "cfork": "^1.8.0"
+  }
+}
